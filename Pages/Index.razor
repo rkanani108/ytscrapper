@@ -1,7 +1,181 @@
 ﻿@page "/"
+@using System.Net.Http
+@inject HttpClient Http
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<h1>Grab Youtube Channel Data</h1>
+Channel ID:
+<input type="text" @bind="channelId" />
+<br />
+API Key:
+<input type="text" @bind="apiKey" />
+<br />
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<button class="btn btn-primary" @onclick="Run">Run</button>
+
+
+@if (playlist != null)
+{
+    currentCount = 0;
+    @foreach (var v in videoList)
+    {
+        @foreach (var item in v.items)
+        {
+            <div>@(++currentCount), @v.playlistId, @v.playlistName, @item.snippet.resourceId.videoId, @item.snippet.title,  @item.status.privacyStatus</div>
+        }
+
+
+    }
+}
+
+
+@code {
+            private int currentCount = 0;
+private Root playlist = null;
+private Root videos = null;
+private List<Root> videoList = new List<Root>();
+protected string apiKey { get; set; }
+protected string channelId { get; set; }
+
+
+private async Task Run()
+{
+        // apiKey = "AIzaSyDlv05h9HxL7X3LAZmhlBxdXlz3oxsAWq8";
+        // channelId = "UCQXWP4gEdEwlb6vodwrU75A";
+        string playlistToken = "false";
+        do
+        {
+            string playListUrl = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&maxResults=50&channelId=" + channelId + "&key=" + apiKey;
+
+
+
+            if (playlistToken != "false")
+                playListUrl = playListUrl + "&pageToken=" + playlistToken;
+            playlistToken = "false";
+            playlist = await Http.GetFromJsonAsync<Root>(playListUrl);
+            playlistToken = playlist.nextPageToken == null ? "false" : playlist.nextPageToken;
+
+            foreach (var p in playlist.items)
+            {
+                if (true)//p.id == "PLHNUWAqhIXY2CuHC8xNsqGxm-C2b-Ha4A")
+                {
+                    string videoPageToken = "false", videoUrl;
+
+                    do
+                    {
+                        videoUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status&maxResults=50&playlistId=" + p.id + "&key=" + apiKey;
+                        if (videoPageToken != "false")
+                            videoUrl = videoUrl + "&pageToken=" + videoPageToken;
+
+                        videoPageToken = "false";
+
+                        videos = await Http.GetFromJsonAsync<Root>(videoUrl);
+                        videos.playlistName = p.snippet.title;
+                        videos.playlistId = p.id;
+                        videoList.Add(videos);
+                        videoPageToken = videos.nextPageToken == null ? "false" : videos.nextPageToken;
+
+                    } while (videoPageToken != "false");
+                }
+            }
+
+        } while (playlistToken != "false");
+}
+
+    //classes
+
+       
+        public class Default
+        {
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        }
+
+        public class Medium
+        {
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        }
+
+        public class High
+        {
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        }
+
+        public class Standard
+        {
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        }
+
+        public class Maxres
+        {
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        }
+
+        public class Thumbnails
+        {
+        public Default @default { get; set; }
+public Medium medium { get; set; }
+    public High high { get; set; }
+    public Standard standard { get; set; }
+    public Maxres maxres { get; set; }
+}
+
+public class ResourceId
+{
+    public string kind { get; set; }
+    public string videoId { get; set; }
+}
+
+public class Snippet
+{
+    public DateTime? publishedAt { get; set; }
+    public string channelId { get; set; }
+    public string title { get; set; }
+    public string description { get; set; }
+    public Thumbnails thumbnails { get; set; }
+    public string channelTitle { get; set; }
+    public string playlistId { get; set; }
+    public int? position { get; set; }
+    public ResourceId resourceId { get; set; }
+}
+
+public class Status
+{
+    public string privacyStatus { get; set; }
+}
+
+public class Item
+{
+    public string kind { get; set; }
+    public string etag { get; set; }
+    public string id { get; set; }
+    public Snippet snippet { get; set; }
+    public Status status { get; set; }
+}
+
+public class PageInfo
+{
+    public int totalResults { get; set; }
+    public int resultsPerPage { get; set; }
+}
+
+public class Root
+{
+    public string kind { get; set; }
+    public string playlistId { get; set; }
+    public string playlistName { get; set; }
+    public string etag { get; set; }
+    public string nextPageToken { get; set; }
+    public List<Item> items { get; set; }
+    public PageInfo pageInfo { get; set; }
+}
+}
