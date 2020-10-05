@@ -1,45 +1,133 @@
 ﻿@page "/"
 @using System.Net.Http
+@inject IJSRuntime jsRuntime
 @inject HttpClient Http
 
 
-<h1>Grab Youtube Channel Data</h1>
-Channel ID:
-<input type="text" @bind="channelId" />
-<br />
-API Key:
-<input type="text" @bind="apiKey" />
-<br />
+        <div class="container row">
+            <div class="card col-md-6 col-sm-12">
 
-<button class="btn btn-primary" @onclick="Run">Run</button>
+                <div class="row card-header">
 
+                    <h4>Youtube Scraper</h4>
 
-@if (playlist != null)
-{
-    currentCount = 0;
-    @foreach (var v in videoList)
-    {
-        @foreach (var item in v.items)
-        {
-            <div>@(++currentCount), @v.playlistId, @v.playlistName, @item.snippet.resourceId.videoId, @item.snippet.title,  @item.status.privacyStatus</div>
-        }
+                </div>
 
 
-    }
-}
+                <div class="card-body pt-3">
+                    <div class="row pb-0">
+                        <div class="col-md-12 input-group col-sm-12">
+                            <input placeholder="Enter api key" @bind="apiKey" type="text" class="form-control form-control-md text-center">
+
+                            <input placeholder="Enter channel id" @bind="channelId" type="text" class="form-control form-control-md text-center">
+                            <div class="input-group-append">
+                                <button class="btn btn-md btn-info" @onclick="Run" type="button">
+                                    <i class="fa fa-floppy-o"></i> Sync
+                                </button>
+                                <span class="font-weight-bold" ><img src="/loader.gif" class="@ccsStyle" style="height: 37px; margin-left: 10px;"/></span>
+
+                            </div>
+
+                        </div>
+                        
+
+
+                    </div>
+
+
+
+                </div>
+
+            </div>
+        </div>
+         <div class="card col-md-12 col-sm-12 mt-5">
+                <div class="card-header row d-inline-flex">
+
+                    <h4>Data</h4>
+
+                    <div class="text-right col">
+                        <span class="font-weight-bold"><img src="/loader.gif"  class="@ccsExportStyle" style="height: 37px; margin-left: 10px;" /></span>
+                        <button id="export" @onclick="exportData" class="btn btn-success py-1 exportToExcel" type="button"><i class="fa fa-download"></i> Export</button>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="table table-striped table-responsive table-bordered">
+                            <table class="table table2excel" data-tableName="Test Table 2" style="width: 100%" id="YoutubeDataTable">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <td>No</td>
+                                        <td>Playlist Id</td>
+                                        <td>Playlist Name</td>
+                                        <td>Video Id</td>
+                                        <td>Video Name</td>
+                                        <td>Status</td>
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+
+                                    @if (playlist != null)
+                                    {
+                                        currentCount = 0;
+                                        @foreach (var v in videoList)
+                                        {
+                                            @foreach (var item in v.items)
+                                            {
+                                                <tr>
+                                                    <td>@(++currentCount)</td>
+                                                    <td>@v.playlistId</td>
+                                                    <td>@v.playlistName</td>
+                                                    <td>@item.snippet.resourceId.videoId</td>
+                                                    <td>@item.snippet.title</td>
+                                                    <td>@item.status.privacyStatus</td>
+                                                </tr>
+                                            }
+
+
+                                        }
+                                    }
+
+
+                                </tbody>
+
+                            </table>
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+
+            </div>
 
 
 @code {
-            private int currentCount = 0;
-private Root playlist = null;
-private Root videos = null;
-private List<Root> videoList = new List<Root>();
-protected string apiKey { get; set; }
-protected string channelId { get; set; }
+    string ccsStyle = "displayNone";
+    string ccsExportStyle = "displayNone";
+    private int currentCount = 0;
+    private Root playlist = null;
+    private Root videos = null;
+    private List<Root> videoList = new List<Root>();
+    protected string apiKey { get; set; }
+    protected string channelId { get; set; }
 
+    private async Task exportData()
+    {
+        ccsExportStyle = "";
+        await jsRuntime.InvokeAsync<object>("exportData");
+        ccsExportStyle = "displayNone";
+    }
 
-private async Task Run()
-{
+    private async Task Run()
+    {
+        ccsStyle = "displayBlock";
         // apiKey = "AIzaSyDlv05h9HxL7X3LAZmhlBxdXlz3oxsAWq8";
         // channelId = "UCQXWP4gEdEwlb6vodwrU75A";
         string playlistToken = "false";
@@ -80,102 +168,103 @@ private async Task Run()
             }
 
         } while (playlistToken != "false");
-}
+        ccsStyle = "displayNone";
+    }
 
     //classes
 
-       
-        public class Default
-        {
+
+    public class Default
+    {
         public string url { get; set; }
         public int width { get; set; }
         public int height { get; set; }
-        }
+    }
 
-        public class Medium
-        {
+    public class Medium
+    {
         public string url { get; set; }
         public int width { get; set; }
         public int height { get; set; }
-        }
+    }
 
-        public class High
-        {
+    public class High
+    {
         public string url { get; set; }
         public int width { get; set; }
         public int height { get; set; }
-        }
+    }
 
-        public class Standard
-        {
+    public class Standard
+    {
         public string url { get; set; }
         public int width { get; set; }
         public int height { get; set; }
-        }
+    }
 
-        public class Maxres
-        {
+    public class Maxres
+    {
         public string url { get; set; }
         public int width { get; set; }
         public int height { get; set; }
-        }
+    }
 
-        public class Thumbnails
-        {
+    public class Thumbnails
+    {
         public Default @default { get; set; }
-public Medium medium { get; set; }
-    public High high { get; set; }
-    public Standard standard { get; set; }
-    public Maxres maxres { get; set; }
-}
+        public Medium medium { get; set; }
+        public High high { get; set; }
+        public Standard standard { get; set; }
+        public Maxres maxres { get; set; }
+    }
 
-public class ResourceId
-{
-    public string kind { get; set; }
-    public string videoId { get; set; }
-}
+    public class ResourceId
+    {
+        public string kind { get; set; }
+        public string videoId { get; set; }
+    }
 
-public class Snippet
-{
-    public DateTime? publishedAt { get; set; }
-    public string channelId { get; set; }
-    public string title { get; set; }
-    public string description { get; set; }
-    public Thumbnails thumbnails { get; set; }
-    public string channelTitle { get; set; }
-    public string playlistId { get; set; }
-    public int? position { get; set; }
-    public ResourceId resourceId { get; set; }
-}
+    public class Snippet
+    {
+        public DateTime? publishedAt { get; set; }
+        public string channelId { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
+        public Thumbnails thumbnails { get; set; }
+        public string channelTitle { get; set; }
+        public string playlistId { get; set; }
+        public int? position { get; set; }
+        public ResourceId resourceId { get; set; }
+    }
 
-public class Status
-{
-    public string privacyStatus { get; set; }
-}
+    public class Status
+    {
+        public string privacyStatus { get; set; }
+    }
 
-public class Item
-{
-    public string kind { get; set; }
-    public string etag { get; set; }
-    public string id { get; set; }
-    public Snippet snippet { get; set; }
-    public Status status { get; set; }
-}
+    public class Item
+    {
+        public string kind { get; set; }
+        public string etag { get; set; }
+        public string id { get; set; }
+        public Snippet snippet { get; set; }
+        public Status status { get; set; }
+    }
 
-public class PageInfo
-{
-    public int totalResults { get; set; }
-    public int resultsPerPage { get; set; }
-}
+    public class PageInfo
+    {
+        public int totalResults { get; set; }
+        public int resultsPerPage { get; set; }
+    }
 
-public class Root
-{
-    public string kind { get; set; }
-    public string playlistId { get; set; }
-    public string playlistName { get; set; }
-    public string etag { get; set; }
-    public string nextPageToken { get; set; }
-    public List<Item> items { get; set; }
-    public PageInfo pageInfo { get; set; }
-}
+    public class Root
+    {
+        public string kind { get; set; }
+        public string playlistId { get; set; }
+        public string playlistName { get; set; }
+        public string etag { get; set; }
+        public string nextPageToken { get; set; }
+        public List<Item> items { get; set; }
+        public PageInfo pageInfo { get; set; }
+    }
 }

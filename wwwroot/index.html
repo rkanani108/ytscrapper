@@ -8,6 +8,15 @@
     <base href="/" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
+    <style>
+        .displayBlock {
+            display: block;
+        }
+
+        .displayNone {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -18,6 +27,28 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+    <script>
+        function exportData() {
+            var timestamp = new Date().getUTCMilliseconds();
+            var now = new Date();
+
+            timestamp = now.getFullYear().toString(); // 2011
+            timestamp += (now.getMonth < 9 ? '0' : '') + now.getMonth().toString(); // JS months are 0-based, so +1 and pad with 0's
+            timestamp += ((now.getDate < 10) ? '0' : '') + now.getDate().toString(); // pad with a 0
+            timestamp += ((now.getHours < 10) ? '0' : '') + now.getHours().toString();
+            timestamp += ((now.getSeconds < 10) ? '0' : '') + now.getSeconds().toString();
+            timestamp += ((now.getSeconds < 10) ? '0' : '') + now.getSeconds().toString();
+
+            let data = document.querySelector('#YoutubeDataTable');
+            TableToExcel.convert(data, { // html code may contain multiple tables so here we are refering to 1st table tag
+                name: timestamp + `_Youtube_channel.xlsx`, // fileName you could use any name
+                sheet: {
+                    name: 'Youtube Data' // sheetName
+                }
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 
