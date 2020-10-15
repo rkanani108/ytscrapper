@@ -1,12 +1,12 @@
 using System;
 using System.Net.Http;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Text;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Syncfusion.Blazor;
+
+
+using YtScraper.Services;
 
 namespace YtScraper
 {
@@ -15,10 +15,16 @@ namespace YtScraper
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+          
+           builder.Services.AddSingleton<IApiClient, ApiClient>();
+           
             builder.RootComponents.Add<App>("app");
-
+          
+            
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzMxNDM3QDMxMzgyZTMzMmUzMEpuSVl2TmJBa0tHZGhTaXd6Mjg4OEhXNitXYTB4RkQreGVSZHlvS3BzUUk9");
+            builder.Services.AddSyncfusionBlazor();
+         
             await builder.Build().RunAsync();
         }
     }
