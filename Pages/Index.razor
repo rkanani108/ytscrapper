@@ -4,49 +4,52 @@
 @inject HttpClient Http
 
 
-        <div class="container row">
-            <div class="card col-md-6 col-sm-12">
+    <AuthorizeView>
+        <Authorized>
+            @*@context.User.Identity.Name*@
+            <div class="container row">
+                <div class="card col-md-6 col-sm-12">
 
-                <div class="row card-header">
+                    <div class="row card-header">
 
-                    <h4>Youtube Scraper</h4>
-
-                </div>
-
-
-                <div class="card-body pt-3">
-                    <div class="row pb-0">
-                        <div class="col-md-12 input-group col-sm-12">
-                            <input placeholder="Enter api key" @bind="apiKey" type="text" class="form-control form-control-md text-center">
-
-                            <input placeholder="Enter channel id" @bind="channelId" type="text" class="form-control form-control-md text-center">
-                            <div class="input-group-append">
-                                <button class="btn btn-md btn-info" @onclick="Run" type="button">
-                                    <i class="fa fa-floppy-o"></i> Sync
-                                </button>
-                                <span class="font-weight-bold" ><img src="/loader.gif" class="@ccsStyle" style="height: 37px; margin-left: 10px;"/></span>
-
-                            </div>
-
-                        </div>
-                        
-
+                        <h4>Youtube Scraper</h4>
 
                     </div>
 
 
+                    <div class="card-body pt-3">
+                        <div class="row pb-0">
+                            <div class="col-md-12 input-group col-sm-12">
+                                <input placeholder="Enter api key" @bind="apiKey" type="text" class="form-control form-control-md text-center">
+
+                                <input placeholder="Enter channel id" @bind="channelId" type="text" class="form-control form-control-md text-center">
+                                <div class="input-group-append">
+                                    <button class="btn btn-md btn-info" @onclick="Run" type="button">
+                                        <i class="fa fa-floppy-o"></i> Sync
+                                    </button>
+                                    <span class="font-weight-bold"><img src="/loader.gif" class="@ccsStyle" style="height: 37px; margin-left: 10px;" /></span>
+
+                                </div>
+
+                            </div>
+
+
+
+                        </div>
+
+
+
+                    </div>
 
                 </div>
-
             </div>
-        </div>
-         <div class="card col-md-12 col-sm-12 mt-5">
+            <div class="card col-md-12 col-sm-12 mt-5">
                 <div class="card-header row d-inline-flex">
 
                     <h4>Data</h4>
 
                     <div class="text-right col">
-                        <span class="font-weight-bold"><img src="/loader.gif"  class="@ccsExportStyle" style="height: 37px; margin-left: 10px;" /></span>
+                        <span class="font-weight-bold"><img src="/loader.gif" class="@ccsExportStyle" style="height: 37px; margin-left: 10px;" /></span>
                         <button id="export" @onclick="exportData" class="btn btn-success py-1 exportToExcel" type="button"><i class="fa fa-download"></i> Export</button>
                     </div>
                 </div>
@@ -106,6 +109,11 @@
 
 
             </div>
+        </Authorized>
+        <NotAuthorized>You aren't authorize yet.</NotAuthorized>
+    </AuthorizeView>
+
+
 
 
 @code {
@@ -127,6 +135,7 @@
 
     private async Task Run()
     {
+        
         ccsStyle = "displayBlock";
         // apiKey = "AIzaSyDlv05h9HxL7X3LAZmhlBxdXlz3oxsAWq8";
         // channelId = "UCQXWP4gEdEwlb6vodwrU75A";
