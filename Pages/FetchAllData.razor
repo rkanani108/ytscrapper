@@ -171,7 +171,7 @@
                     var v = new VideoSnippet();
                     v.Id = p.snippet.resourceId.videoId;
                     v.title = p.snippet.title;
-                    v.status =p.status.privacyStatus;
+                    v.status ="Public";
                     v.playlistName = p.snippet.channelTitle;
                     v.playlistId = p.snippet.channelId;
                     Console.WriteLine(v.ToString());
