@@ -11,11 +11,14 @@
         <div class="card-body pt-3">
             <div class="row pb-0">
                 <div class="col-md-12 input-group col-sm-12">
+                    Don't check this:<input @bind="isDetail" type="checkbox" class="form-control form-conrol-md" width="20px"/>
                     <input placeholder="Enter channel id" @bind="channelId" type="text" class="form-control form-control-md text-center">
+
                     <div class="input-group-append">
                         <button class="btn btn-md btn-info" @onclick="Run" type="button">
                             <i class="fa fa-floppy-o"></i> Sync
                         </button>
+
                         <span class="font-weight-bold"><img src="/loader.gif" class="@ccsStyle" style="height: 37px; margin-left: 10px;" /></span>
                     </div>
                 </div>
@@ -58,6 +61,11 @@
                         <GridColumn Field=@nameof(VideoSnippet.playlistId) HeaderText="Playlist Id" TextAlign="TextAlign.Center" Width="120"></GridColumn>
                         <GridColumn Field=@nameof(VideoSnippet.playlistName) FilterSettings="@(new FilterSettings{ Operator = Operator.Contains })" HeaderText="Playlist Name" Width="150"></GridColumn>
                         <GridColumn Field=@nameof(VideoSnippet.status) Visible="true" HeaderText="Privacy Status" Width="150"></GridColumn>
+                        <GridColumn Field=@nameof(VideoSnippet.publishAt) Visible="true" HeaderText="PublishAt" Width="150"></GridColumn>
+                        <GridColumn Field=@nameof(VideoSnippet.duration) Visible="true" HeaderText="Duration" Width="150"></GridColumn>
+
+
+                        @*<GridColumn Field=@nameof(VideoSnippet.description) Visible="true" HeaderText="Description" Width="150"></GridColumn>*@
 
                     </GridColumns>
                 </SfGrid>
@@ -102,6 +110,8 @@
         private List<Root> videoList = new List<Root>();
         protected string apiKey { get; set; } = "AIzaSyDlv05h9HxL7X3LAZmhlBxdXlz3oxsAWq8";
         protected string channelId { get; set; }
+        protected bool isDetail { get; set; }
+        
 
 
         public List<RuleModel> ImportRules = new List<RuleModel>()
@@ -161,7 +171,7 @@
 
                         do
                         {
-                            videoUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status&maxResults=50&playlistId=" + p.id + "&key=" + apiKey;
+                            videoUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status,contentDetails&maxResults=50&playlistId=" + p.id + "&key=" + apiKey;
                             if (videoPageToken != "false")
                                 videoUrl = videoUrl + "&pageToken=" + videoPageToken;
 
@@ -169,6 +179,7 @@
 
                             videos = await Http.GetFromJsonAsync<Root>(videoUrl);
                             videos.playlistName = p.snippet.title;
+
                             videos.playlistId = p.id;
                             videoList.Add(videos);
                             videoPageToken = videos.nextPageToken == null ? "false" : videos.nextPageToken;
@@ -194,9 +205,20 @@
                         //vs.no = (++currentCount).ToString();
                         vs.playlistId = v.playlistId;
                         vs.playlistName = v.playlistName;
+
                         vs.Id = item.snippet.resourceId.videoId;
                         vs.title = item.snippet.title;
                         vs.status = item.status.privacyStatus;
+                        vs.publishAt = item.snippet.publishedAt.ToString();
+                        vs.description = item.snippet.description;
+                        vs.duration = "";
+                        if (isDetail)
+                        {
+                            var videoUrl = "https://www.googleapis.com/youtube/v3/videos?id=" + vs.Id + "&part=contentDetails&key=" + apiKey;
+                            var result = await Http.GetFromJsonAsync<VideoRoot>(videoUrl);
+
+                            vs.duration = result.items[0].contentDetails.duration;
+                        }
 
 
                         GridData.Add(vs);
@@ -217,6 +239,9 @@
             public string playlistId { get; set; }
             public string playlistName { get; set; }
             public string status { get; set; }
+            public string publishAt { get; set; }
+            public string duration { get; set; }
+            public string description { get; set; }
         }
 
 
@@ -303,5 +328,50 @@
             public List<Item> items { get; set; }
             public PageInfo pageInfo { get; set; }
         }
+        #endregion
+
+
+        #region videoDetail
+
+        // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
+        public class ContentRating
+        {
+        }
+
+        public class ContentDetails
+        {
+            public string duration { get; set; }
+            public string dimension { get; set; }
+            public string definition { get; set; }
+            public string caption { get; set; }
+            public bool licensedContent { get; set; }
+            public ContentRating contentRating { get; set; }
+            public string projection { get; set; }
+        }
+
+        public class VideoItem
+        {
+            public string kind { get; set; }
+            public string etag { get; set; }
+            public string id { get; set; }
+            public ContentDetails contentDetails { get; set; }
+        }
+
+        public class VideoPageInfo
+        {
+            public int totalResults { get; set; }
+            public int resultsPerPage { get; set; }
+        }
+
+        public class VideoRoot
+        {
+            public string kind { get; set; }
+            public string etag { get; set; }
+            public List<VideoItem> items { get; set; }
+            public PageInfo pageInfo { get; set; }
+        }
+
+
+
         #endregion
     }
