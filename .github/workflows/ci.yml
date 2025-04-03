@@ -3,24 +3,25 @@ name: gh-pages
 on:
   push:
     branches:
-      - main # Triggers the workflow only on pushes to the 'main' branch.
+      - main # Trigger only on pushes to the 'main' branch.
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 # Use an older Ubuntu version where libssl1.1 is available.
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Install OpenSSL (libssl1.1)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libssl1.1
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '3.1.426'
-        
-    - name: Install OpenSSL
-      run: sudo apt-get update && sudo apt-get install libssl1.1 -y
-
+        dotnet-version: '3.1.426' # Latest .NET Core 3.1 patch version.
 
     - name: Publish with dotnet
       run: dotnet publish --configuration Release --output build
