@@ -58,7 +58,7 @@
                         <GridColumn Field=@nameof(VideoSnippet.playlistId) HeaderText="Playlist Id" TextAlign="TextAlign.Center" Width="120"></GridColumn>
                         <GridColumn Field=@nameof(VideoSnippet.playlistName) FilterSettings="@(new FilterSettings{ Operator = Operator.Contains })" HeaderText="Playlist Name" Width="150"></GridColumn>
                         <GridColumn Field=@nameof(VideoSnippet.status) Visible="true" HeaderText="Privacy Status" Width="150"></GridColumn>
-
+                    <GridColumn Field=@nameof(VideoSnippet.desc) FilterSettings="@(new FilterSettings{ Operator = Operator.Contains })" HeaderText="Desc" Width="150"></GridColumn>
                     </GridColumns>
                 </SfGrid>
             </div>
@@ -174,6 +174,7 @@
                     v.status ="Public";
                     v.playlistName = p.snippet.channelTitle;
                     v.playlistId = p.snippet.channelId;
+                    v.desc = p.snippet.description;
                     Console.WriteLine(v.ToString());
                     GridData.Add(v);
                 }
@@ -194,6 +195,7 @@
             public string playlistId { get; set; }
             public string playlistName { get; set; }
             public string status { get; set; }
+             public string desc { get; set; }
         }
 
 
